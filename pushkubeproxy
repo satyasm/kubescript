@@ -36,7 +36,7 @@ gcloud_compute_copy_file_to_host(instance.name, KUBE_PROXY_IMAGE_TAR_PATH)
 
 cmd = """sudo bash -c '
 docker load < kube-proxy.tar
-ls -al ~/kube-proxy.manifest > /dev/null 2>&1 || cp /etc/kubernetes/manifests/kube-proxy.manifest ~/kube-proxy.manifest
+ls -al /tmp/kube-proxy.manifest > /dev/null 2>&1 || cp /etc/kubernetes/manifests/kube-proxy.manifest /tmp/kube-proxy.manifest
 sed -i "s/image:.*/image: {}/" /etc/kubernetes/manifests/kube-proxy.manifest
 '
 """

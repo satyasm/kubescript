@@ -9,6 +9,7 @@ GET_CURRENT_CONTEXT = "kubectl config current-context"
 KUBECTL_RESOURCE_OPERATION = "kubectl {} {} --namespace={} {} {}"
 KUBECTL_CREATE = "kubectl create -f "
 GET_ALL_GCE_INSTANCES = "gcloud compute instances list"
+GET_ALL_GCE_INSTANCES_CSV = 'gcloud compute instances list --format="csv(name, zone, machineType, scheduling.preemptible, networkInterfaces[0].networkIP, networkInterfaces[0].accessConfigs[0].natIP,status)"'
 GCLOUD_SSH = ["gcloud", "compute", "ssh", "--zone"]
 GCLOUD_COPY_FILE = ["gcloud", "compute", "scp"]
 KUBE_BASE_IMAGE = "gcr.io/google_containers/debian-iptables-amd64:v4"
@@ -102,15 +103,16 @@ def get_kube_context():
 
 
 def get_all_gce_instances():
-    output = subprocess.check_output(GET_ALL_GCE_INSTANCES, shell=True)
+    output = subprocess.check_output(GET_ALL_GCE_INSTANCES_CSV, shell=True)
     instances = []
     i = 0
     lines = output.splitlines()
-    print("---\t %s" % lines[0])
+    headers = lines[0].split(',')
+    print("---\t %-40s %-20s %-20s %-12s %-20s %-20s" % (headers[0], headers[1], headers[2], headers[3], headers[4], headers[5]))
     for line in lines[1:]:
-        print("[%d] -\t %s" % (i, line))
+        cols = line.split(',')
+        print("[%d] -\t %-40s %-20s %-20s %-12s %-20s %-20s" % (i, cols[0], cols[1], cols[2], cols[3], cols[4], cols[5]))
         i += 1
-        cols = line.split()
         instances.append(GCEInstance(cols[0], cols[1], cols[3], cols[4], cols[5], ))
     return instances
 
